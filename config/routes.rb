@@ -1,3 +1,4 @@
 Rails.application.routes.draw do
-  resources :tasks, only: [ :index, :create, :update, :destroy ]
+  post 'authenticate', to: 'authentication#authenticate'
+  resources :tasks, only: %i[index create update destroy]
 end
