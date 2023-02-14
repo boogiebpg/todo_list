@@ -40,7 +40,7 @@ class SubtasksController < ApplicationController
   end
 
   def task
-    @task ||= Task.find(params[:task_id])
+    @task ||= current_user.tasks.find(params[:task_id])
   rescue ActiveRecord::RecordNotFound
     render json: { success: false, errors: [{ task: 'Not Found' }] }
   end

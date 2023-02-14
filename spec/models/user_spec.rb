@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe User, type: :model do
   describe 'associations' do
     it { should have_secure_password(:password) }
+    it { should have_many(:tasks).dependent(:restrict_with_exception) }
   end
 
   describe 'validations' do

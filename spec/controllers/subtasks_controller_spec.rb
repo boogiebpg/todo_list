@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe SubtasksController, type: :controller do
   let(:user) { create(:user) }
-  let(:task) { create(:task) }
+  let(:task) { create(:task, user: user) }
 
   let(:auth_header) do
     token = AuthenticateUser.call(user.email, user.password).result

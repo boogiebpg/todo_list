@@ -15,7 +15,8 @@ RSpec.describe TasksController, type: :controller do
       task: {
         title: "mytitle",
         description: "value",
-        due: Time.current + 1.month
+        due: Time.current + 1.month,
+        # user_id: user.id
       }
     }
   end
@@ -25,7 +26,8 @@ RSpec.describe TasksController, type: :controller do
       task: {
         title: nil,
         description: "value",
-        due: Time.current + 1.month
+        due: Time.current + 1.month,
+        # user_id: user.id
       }
     }
   end
@@ -99,7 +101,7 @@ RSpec.describe TasksController, type: :controller do
   end
 
   describe '#update' do
-    let(:task) { create(:task) }
+    let(:task) { create(:task, user: user) }
     let(:correct_update_params) { correct_task_params.merge(id: task.id) }
     let(:incorrect_update_params) { incorrect_task_params.merge(id: task.id) }
 
@@ -167,7 +169,7 @@ RSpec.describe TasksController, type: :controller do
   end
 
   describe '#destroy' do
-    let!(:task) { create(:task) }
+    let!(:task) { create(:task, user: user) }
 
     context 'when destroy task with correct id' do
       before(:each) do
@@ -193,7 +195,7 @@ RSpec.describe TasksController, type: :controller do
   end
 
   describe '#index' do
-    let!(:tasks) { create_list(:task, 3) }
+    let!(:tasks) { create_list(:task, 3, { user: user }) }
 
     context 'when destroy task with correct auth headers' do
       before(:each) do
@@ -209,7 +211,7 @@ RSpec.describe TasksController, type: :controller do
         get :index
         expect(parsed_json_body[:tasks].count).to eq(3)
         expect(parsed_json_body[:tasks].first.keys).to eq(
-          [:id, :title, :description, :due, :completed, :created_at, :updated_at]
+          [:id, :title, :description, :due, :completed, :created_at, :updated_at, :user_id]
         )
       end
     end

@@ -4,7 +4,7 @@ class TasksController < ApplicationController
   before_action :authenticate_request
 
   def create
-    new_task = Task.new(task_params)
+    new_task = current_user.tasks.build(task_params)
     if new_task.save
       render json: { task: new_task, success: true }, status: 201
     else
@@ -36,11 +36,11 @@ class TasksController < ApplicationController
   end
 
   def tasks
-    Task.all
+    current_user.tasks
   end
 
   def task
-    @task ||= Task.find(params[:id])
+    @task ||= current_user.tasks.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     render json: { success: false, error_messages: [{ task: 'Not Found' }] }
   end
