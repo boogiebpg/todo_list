@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
 class Task < ApplicationRecord
-  validates :title, :description, :completed, presence: true
+  has_many :subtasks, dependent: :restrict_with_exception
+  validates :title, :description, presence: true
 end

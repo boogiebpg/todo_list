@@ -14,7 +14,7 @@ RSpec.describe AuthenticationController, type: :controller do
   describe '#authenticate' do
     context 'when authenticate with incorrect credentials' do
       let(:incorrect_payload) do
-        { user: { email: 'incorrect@mail.com', password: 'incorrect' } }
+        { email: 'incorrect@mail.com', password: 'incorrect' }
       end
 
       it 'responds with 401 status' do

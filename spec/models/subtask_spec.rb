@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 
-RSpec.describe Task, type: :model do
+RSpec.describe Subtask, type: :model do
   describe 'associations' do
-    it { should have_many(:subtasks).dependent(:restrict_with_exception) }
+    it { should belong_to(:task).optional(false) }
   end
 
   describe 'validations' do

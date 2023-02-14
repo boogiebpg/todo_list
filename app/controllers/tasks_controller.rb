@@ -4,22 +4,23 @@ class TasksController < ApplicationController
   before_action :authenticate_request
 
   def create
-    if task = Task.create(task_params)
-      render json: { task:, success: true }
+    new_task = Task.new(task_params)
+    if new_task.save
+      render json: { task: new_task, success: true }, status: 201
     else
-      render json: { task: nil, success: false, error_messages: task.error_messages }
+      render json: { task: nil, success: false, errors: new_task.errors.full_messages }, status: 422
     end
   end
 
   def index
-    render json: { tasks: }
+    render json: { tasks: tasks }
   end
 
   def update
     if task.update(task_params)
-      render json: { task:, success: true }
+      render json: { task: task, success: true }
     else
-      render json: { task:, success: false, error_messages: task.error_messages }
+      render json: { task: task, success: false, errors: task.errors.full_messages }, status: 422
     end
   end
 
@@ -40,7 +41,7 @@ class TasksController < ApplicationController
 
   def task
     @task ||= Task.find(params[:id])
-  rescue ActiveRecord::NotFound
+  rescue ActiveRecord::RecordNotFound
     render json: { success: false, error_messages: [{ task: 'Not Found' }] }
   end
 end
