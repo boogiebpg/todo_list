@@ -29,12 +29,4 @@ class Task::Selector
     return [] if tags_param.nil?
     tags_param.split(',')
   end
-
-  # def add_tags_to_task(new_task)
-  #   tags_array.each do |tag|
-  #     record = Tag.where(name: tag).first_or_create!
-  #     new_task.tags << record
-  #   end
-  #   new_task
-  # end
 end

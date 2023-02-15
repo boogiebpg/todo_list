@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class TasksController < ApplicationController
-  before_action :authenticate_request
+  before_action :authenticate_request, except: :stats
 
   def create
     new_task = Task::Creator.call(current_user, task_params).result
@@ -26,6 +26,11 @@ class TasksController < ApplicationController
   def destroy
     task.destroy
     render json: { success: true }
+  end
+
+  def stats
+    stats = Task::Aggregator.call.result
+    render json: { stats: stats }
   end
 
   private

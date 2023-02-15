@@ -285,4 +285,44 @@ RSpec.describe TasksController, type: :controller do
       end
     end
   end
+
+  describe '#stats' do
+    let(:category1) { create(:category, name: "First Category") }
+    let(:category2) { create(:category, name: "Second Category") }
+    let(:tag1) { create(:tag, name: "First Tag") }
+    let(:tag2) { create(:tag, name: "Second Tag") }
+    let(:user2) { create(:user) }
+    let!(:tasks) { create_list(:task, 3, { user: user, category: category2 }) }
+    let!(:other_tasks) { create_list(:task, 3, { user: user2 }) }
+
+    before(:each) do
+      create(:task, user: user, category: category1)
+      Task.first.tags << tag1
+      Task.second.tags << tag1
+      Task.last.tags << tag2
+    end
+
+    context 'when request has correct auth headers' do
+      it 'responds with 200' do
+        get :stats
+        expect(response.status).to eq(200)
+      end
+
+      it 'responds with correct stats' do
+        get :stats
+        expect(parsed_json_body[:stats].keys).to eq(
+          %i(
+            tasks_count_by_user
+            tasks_count_by_category_and_user
+            tags_count
+          )
+        )
+        expect(parsed_json_body[:stats][:tags_count]).to eq(
+          { "Second Tag": 1, "First Tag": 2 }
+        )
+        expect(parsed_json_body[:stats][:tasks_count_by_user][user.email.to_sym]).to eq(4)
+        expect(parsed_json_body[:stats][:tasks_count_by_category_and_user].values).to match_array([1,3,3])
+      end
+    end
+  end
 end
