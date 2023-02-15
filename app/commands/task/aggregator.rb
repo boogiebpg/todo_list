@@ -3,18 +3,14 @@
 class Task::Aggregator
   prepend SimpleCommand
 
-  def initialize
-    # @current_user = current_user
-    # @tags_param = filter_params[:tags]
-    # @category_param = filter_params[:category_id]
-  end
-
   def call
-    {
-      tasks_count_by_user: tasks_count_by_user,
-      tasks_count_by_category_and_user: tasks_count_by_category_and_user,
-      tags_count: tags_count
-    }
+    Rails.cache.fetch(:task_aggregator, expires_in: 60.minutes) do
+      {
+        tasks_count_by_user: tasks_count_by_user,
+        tasks_count_by_category_and_user: tasks_count_by_category_and_user,
+        tags_count: tags_count
+      }
+    end
   end
 
   private

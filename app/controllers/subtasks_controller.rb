@@ -4,7 +4,6 @@ class SubtasksController < ApplicationController
   before_action :authenticate_request
 
   def create
-    new_subtask = task.subtasks.build(subtask_params)
     if new_subtask.save
       render json: { subtask: new_subtask, success: true }, status: 201
     else
@@ -37,6 +36,10 @@ class SubtasksController < ApplicationController
 
   def subtasks
     task.subtasks
+  end
+
+  def new_subtask
+    @new_subtask ||= task.subtasks.build(subtask_params)
   end
 
   def task

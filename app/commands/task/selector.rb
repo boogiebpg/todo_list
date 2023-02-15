@@ -12,15 +12,16 @@ class Task::Selector
   end
 
   def call
-    tasks = Task.where(user: current_user)
-    tasks = tasks.where(category_id: category_param)
-    if tags.any?
+    Rails.cache.fetch([ :task_selector, current_user, tags_param, category_param ], expires_in: 60.minutes) do
+      tasks = Task
+        .where(user: current_user)
+        .where(category_id: category_param)
       tasks = tasks
         .joins(:tags)
         .where(tags: { name: tags})
-        .distinct
+        .distinct if tags.any?
+      tasks
     end
-    tasks
   end
 
   private
