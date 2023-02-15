@@ -35,7 +35,7 @@ class TasksController < ApplicationController
   end
 
   def filter_params
-    params.slice(:tags).to_unsafe_h
+    params.slice(:tags, :category_id).to_unsafe_h
   end
 
   def task

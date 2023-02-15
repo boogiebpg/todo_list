@@ -214,7 +214,7 @@ RSpec.describe TasksController, type: :controller do
         get :index
         expect(parsed_json_body[:tasks].count).to eq(3)
         expect(parsed_json_body[:tasks].first.keys).to eq(
-          [:id, :title, :description, :due, :completed, :created_at, :updated_at, :user_id]
+          %i(id title description due completed created_at updated_at user_id category_id)
         )
       end
     end
@@ -236,9 +236,52 @@ RSpec.describe TasksController, type: :controller do
       it 'responds with tagged tasks' do
         get :index, params: { tags: 'tag1,tag2' }
         expect(parsed_json_body[:tasks].count).to eq(2)
-        # expect(parsed_json_body[:tasks].first.keys).to eq(
-        #   [:id, :title, :description, :due, :completed, :created_at, :updated_at, :user_id]
-        # )
+        expect(
+          parsed_json_body[:tasks].map { |task| task[:id] }
+        ).to eq(
+          [ Task.first.id, Task.second.id ]
+        )
+      end
+    end
+
+    context 'when there is category for filtering' do
+      let(:cat) { create(:category, name: 'SomeCategory') }
+      let!(:tasks) { create_list(:task, 2, { user: user, category: cat }) }
+
+      it 'responds with 200' do
+        get :index, params: { category_id: cat.id }
+        expect(response.status).to eq(200)
+      end
+
+      it 'responds with categorized tasks' do
+        get :index, params: { category_id: cat.id }
+        expect(parsed_json_body[:tasks].count).to eq(2)
+        expect(
+          parsed_json_body[:tasks].map { |task| task[:id] }
+        ).to eq(
+          Task.last(2).pluck(:id)
+        )
+      end
+    end
+
+    context 'when there are tags and category for filtering' do
+      let(:tag1) { create(:tag, name: 'tag1') }
+      let(:tag2) { create(:tag, name: 'tag2') }
+      let(:cat) { create(:category, name: 'SomeCategory') }
+      let!(:tasks) { create_list(:task, 2, { user: user, category: cat }) }
+      before(:each) do
+        Task.last.tags << tag1
+      end
+
+      it 'responds with 200' do
+        get :index, params: { tags: 'tag1,tag2', category_id: cat.id }
+        expect(response.status).to eq(200)
+      end
+
+      it 'responds with tagged tasks' do
+        get :index, params: { tags: 'tag1,tag2', category_id: cat.id }
+        expect(parsed_json_body[:tasks].count).to eq(1)
+        expect(parsed_json_body[:tasks].first[:id]).to eq(Task.last.id)
       end
     end
   end

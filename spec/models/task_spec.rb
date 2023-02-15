@@ -8,6 +8,7 @@ RSpec.describe Task, type: :model do
     it { should belong_to(:user).optional(false) }
     it { should have_many(:taggings) }
     it { should have_many(:tags).through(:taggings) }
+    it { should belong_to(:category).optional(true) }
   end
 
   describe 'validations' do

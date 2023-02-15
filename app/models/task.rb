@@ -5,6 +5,7 @@ class Task < ApplicationRecord
   belongs_to :user
   has_many :taggings
   has_many :tags, through: :taggings
+  belongs_to :category, optional: true
 
   attr_accessor :tags_array
 

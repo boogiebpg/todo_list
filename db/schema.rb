@@ -10,9 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_02_14_192202) do
+ActiveRecord::Schema[7.0].define(version: 2023_02_15_094752) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "categories", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "subtasks", force: :cascade do |t|
     t.string "title"
@@ -49,6 +55,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_14_192202) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id"
+    t.bigint "category_id"
+    t.index ["category_id"], name: "index_tasks_on_category_id"
     t.index ["completed"], name: "index_tasks_on_completed"
     t.index ["user_id"], name: "index_tasks_on_user_id"
   end
@@ -64,5 +72,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_14_192202) do
 
   add_foreign_key "taggings", "tags"
   add_foreign_key "taggings", "tasks"
+  add_foreign_key "tasks", "categories"
   add_foreign_key "tasks", "users"
 end
