@@ -80,7 +80,7 @@ RSpec.describe SubtasksController, type: :controller do
         request.headers['Authorization'] = auth_header
       end
 
-      it 'responds with 200' do
+      it 'responds with 201' do
         post :create, format: :json, params: correct_params
         expect(response.status).to eq(201)
       end
@@ -199,7 +199,7 @@ RSpec.describe SubtasksController, type: :controller do
   describe '#index' do
     let!(:subtasks) { create_list(:subtask, 3, { task: task }) }
 
-    context 'when destroy task with correct auth headers' do
+    context 'when request has correct auth headers' do
       before(:each) do
         request.headers['Authorization'] = auth_header
       end

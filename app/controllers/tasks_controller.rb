@@ -4,8 +4,8 @@ class TasksController < ApplicationController
   before_action :authenticate_request
 
   def create
-    new_task = current_user.tasks.build(task_params)
-    if new_task.save
+    new_task = Task::Creator.call(current_user, task_params).result
+    if new_task.persisted?
       render json: { task: new_task, success: true }, status: 201
     else
       render json: { task: nil, success: false, errors: new_task.errors.full_messages }, status: 422
@@ -13,15 +13,14 @@ class TasksController < ApplicationController
   end
 
   def index
+    tasks = Task::Selector.call(current_user, filter_params).result
     render json: { tasks: tasks }
   end
 
   def update
-    if task.update(task_params)
-      render json: { task: task, success: true }
-    else
-      render json: { task: task, success: false, errors: task.errors.full_messages }, status: 422
-    end
+    updated_task = Task::Updator.call(task, task_params).result
+    render json: { task: updated_task, success: true } and return if updated_task.errors.blank?
+    render json: { task: updated_task, success: false, errors: updated_task.errors.full_messages }, status: 422
   end
 
   def destroy
@@ -32,11 +31,11 @@ class TasksController < ApplicationController
   private
 
   def task_params
-    params.require(:task).permit(:title, :description, :done)
+    params.require(:task).permit(:title, :description, :completed, :due, tags_array: [])
   end
 
-  def tasks
-    current_user.tasks
+  def filter_params
+    params.slice(:tags).to_unsafe_h
   end
 
   def task

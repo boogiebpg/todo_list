@@ -16,7 +16,9 @@ RSpec.describe TasksController, type: :controller do
         title: "mytitle",
         description: "value",
         due: Time.current + 1.month,
-        # user_id: user.id
+        tags_array: [
+          "tag1", "tag2"
+        ]
       }
     }
   end
@@ -27,7 +29,9 @@ RSpec.describe TasksController, type: :controller do
         title: nil,
         description: "value",
         due: Time.current + 1.month,
-        # user_id: user.id
+        tags_array: [
+          "tag1", "tag2"
+        ]
       }
     }
   end
@@ -78,7 +82,7 @@ RSpec.describe TasksController, type: :controller do
         request.headers['Authorization'] = auth_header
       end
 
-      it 'responds with 200' do
+      it 'responds with 201' do
         post :create, format: :json, params: correct_task_params
         expect(response.status).to eq(201)
       end
@@ -195,13 +199,12 @@ RSpec.describe TasksController, type: :controller do
   end
 
   describe '#index' do
+    before(:each) do
+      request.headers['Authorization'] = auth_header
+    end
     let!(:tasks) { create_list(:task, 3, { user: user }) }
 
-    context 'when destroy task with correct auth headers' do
-      before(:each) do
-        request.headers['Authorization'] = auth_header
-      end
-
+    context 'when request has correct auth headers' do
       it 'responds with 200' do
         get :index
         expect(response.status).to eq(200)
@@ -213,6 +216,29 @@ RSpec.describe TasksController, type: :controller do
         expect(parsed_json_body[:tasks].first.keys).to eq(
           [:id, :title, :description, :due, :completed, :created_at, :updated_at, :user_id]
         )
+      end
+    end
+
+    context 'when there are tags for filtering' do
+      let(:tag1) { create(:tag, name: 'tag1') }
+      let(:tag2) { create(:tag, name: 'tag2') }
+      before(:each) do
+        Task.first.tags << tag1
+        Task.second.tags << tag1
+        Task.second.tags << tag2
+      end
+
+      it 'responds with 200' do
+        get :index, params: { tags: 'tag1,tag2' }
+        expect(response.status).to eq(200)
+      end
+
+      it 'responds with tagged tasks' do
+        get :index, params: { tags: 'tag1,tag2' }
+        expect(parsed_json_body[:tasks].count).to eq(2)
+        # expect(parsed_json_body[:tasks].first.keys).to eq(
+        #   [:id, :title, :description, :due, :completed, :created_at, :updated_at, :user_id]
+        # )
       end
     end
   end
